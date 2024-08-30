@@ -1,0 +1,216 @@
+RHCE Sample Exam
+
+## Task 1: Ansible Installation and Configuration
+
+(If you’re using automated deployments, Ansible is already installed.) Install the Ansible package on the control node (including any dependencies) and configure the following:
+
+- Create a regular user `ansible_user` with the password `password123`. Use this user for all sample exam tasks.
+- All playbooks and other Ansible configurations that you create for this sample exam should be stored in `/home/ansible_user/ansible_plays`.
+- Create a configuration file `/home/ansible_user/ansible_plays/ansible.cfg` to meet the following requirements:
+  - The roles path should include `/home/ansible_user/ansible_plays/roles`, as well as any other path that may be required during the course of the sample exam.
+  - The inventory file path is `/home/ansible_user/ansible_plays/hosts`.
+  - Privilege escalation is disabled by default.
+  - Ansible should be able to manage all three hosts simultaneously.
+  - Ansible should connect to all managed nodes using the `ansible_user`.
+
+- Create an inventory file `/home/ansible_user/ansible_plays/hosts` with the following:
+  - `node1.lab.local` should be a member of the `loadbalancers` host group.
+  - `node2.lab.local` should be a member of the `webservers` host group.
+  - `node3.lab.local` should be a member of the `databases` host group.
+
+---
+
+## Task 2: Create a Shell Script for YUM Repositories
+
+- Create a shell script named `packages.sh` in the directory `/home/ansible_user/ansible_plays`. The script should run an Ansible ad-hoc command to create YUM repository files on all managed hosts with the following specifications:
+  - The AppStream repository should have:
+    - Base URL: `http://repo.ansi.example.com/AppStream`
+    - Name: `RHEL_Appstream`
+    - Description: `RHEL 8 Appstream`
+    - Enabled status with a GPG key located at `http://repo.ansi.example.com/RPM-GPG-KEY-redhat-release`
+  - The BaseOS repository should have:
+    - Base URL: `http://repo.ansi.example.com/BaseOS`
+    - Name: `RHEL_BaseOS`
+    - Description: `RHEL 8 BaseOS`
+    - Enabled status with a GPG key located at `http://repo.ansi.example.com/RPM-GPG-KEY-redhat-release`
+  
+  The repositories should be configured using an Ansible ad-hoc command executed from within the script.
+
+---
+
+## Task 3: Ad-Hoc Commands
+
+- Create an SSH key pair. Write a script `/home/ansible_user/ansible_plays/run_adhoc` that uses Ansible ad-hoc commands to achieve the following:
+  - User `ansible_user` is created on all inventory hosts.
+  - The generated SSH key is copied to all inventory hosts for the `ansible_user` and stored in `/home/ansible_user/.ssh/authorized_keys`.
+  - The `ansible_user` is allowed to elevate privileges on all inventory hosts without providing a password.
+  - After running the ad-hoc script, you should be able to SSH into all inventory hosts using the `ansible_user` without a password, as well as run all privileged commands.
+
+---
+
+## Task 4: File Content
+
+- Create a playbook `/home/ansible_user/ansible_plays/update_motd.yml` that runs on all inventory hosts and does the following:
+  - The playbook should replace any existing content of `/etc/motd` with specific text depending on the host group:
+    - On hosts in the `loadbalancers` host group, the line should be “Welcome to the Load Balancer node”.
+    - On hosts in the `webservers` host group, the line should be “Welcome to the Web Server node”.
+    - On hosts in the `databases` host group, the line should be “Welcome to the Database node”.
+
+---
+
+## Task 5: Configure SSH Server
+
+- Create a playbook `/home/ansible_user/ansible_plays/ssh_config.yml` that runs on all inventory hosts and configures the SSHD daemon as follows:
+  - Set the banner to `/etc/motd`.
+  - Disable X11 forwarding.
+  - Set `MaxAuthTries` to 4.
+
+---
+
+## Task 6: Ansible Vault
+
+- Create an Ansible Vault file `/home/ansible_user/ansible_plays/secrets.yml`. The encryption/decryption password should be `password123`. Add the following variables to the vault:
+  - `user_password` with the value of `password123`.
+  - `db_password` with the value of `password123`.
+- Store the Ansible Vault password in the file `/home/ansible_user/ansible_plays/vault_pass`.
+
+---
+
+## Task 7: Users and Groups
+
+- You have been provided with the list of users below. Use `/home/ansible_user/ansible_plays/vars/users.yml` file to save this content:
+
+  ```yaml
+  ---
+  users:
+    - username: john
+      uid: 1501
+    - username: jane
+      uid: 1502
+    - username: doe
+      uid: 2501
+  ```
+
+- Create a playbook `/home/ansible_user/ansible_plays/create_users.yml` that uses the vault file `/home/ansible_user/ansible_plays/secrets.yml` to achieve the following:
+  - Users with user IDs starting with `1` should be created on the servers in the `webservers` host group. The password should be retrieved from the `user_password` variable.
+  - Users with user IDs starting with `2` should be created on the servers in the `databases` host group. The password should be retrieved from the `user_password` variable.
+  - All users should be members of a supplementary group `wheel`.
+  - The shell should be set to `/bin/bash` for all users.
+  - Account passwords should use the SHA512 hash format.
+  - Each user should have an SSH key uploaded (use the SSH key that you created previously).
+  - After running the playbook, users should be able to SSH into their respective servers without passwords.
+
+---
+
+## Task 8: Scheduled Tasks
+
+- Create a playbook `/home/ansible_user/ansible_plays/scheduled_tasks.yml` that runs on servers in the `loadbalancers` host group and does the following:
+  - A root crontab entry is created that runs every 30 minutes.
+  - The cron job appends the file `/var/log/cron.log` with the output from the `date` command.
+
+---
+
+## Task 9: Software Repositories
+
+- Create a playbook `/home/ansible_user/ansible_plays/repos.yml` that runs on all servers and does the following:
+  - A YUM repository file is created.
+  - The name of the repository is `custom_repo`.
+  - The description of the repository is “Primary YUM Repository”.
+  - Repositories are available from `http://repo.lab.local/BaseOS` and `http://repo.lab.local/AppStream`.
+
+---
+
+## Task 10: Create and Work with Roles
+
+- Create a role called `mysql_role` and store it in `/home/ansible_user/ansible_plays/roles`. The role should satisfy the following requirements:
+  - A primary partition number 1 of size 600MB on device `/dev/sdb` is created.
+  - An LVM volume group called `vg_data` is created using the primary partition created above.
+  - An LVM logical volume called `lv_mysql` of size 400MB is created in the volume group `vg_data`.
+  - An XFS filesystem is created on the logical volume `lv_mysql`.
+  - The logical volume `lv_mysql` is permanently mounted on `/mnt/db_backups`.
+  - The `mariadb` package is installed.
+  - The firewall is configured to allow all incoming traffic on MySQL port TCP 3306.
+  - The MySQL root user password should be set from the variable `db_password` (see Task #5).
+  - The MySQL server should be started and enabled on boot.
+  - The MySQL server configuration file is generated from the `my.cnf.j2` Jinja2 template with the following content:
+
+    ```ini
+    [mysqld]
+    bind_address = {{ ansible_default_ipv4.address }}
+    skip_name_resolve
+    datadir=/var/lib/mysql
+    socket=/var/lib/mysql/mysql.sock
+    symbolic-links=0
+    sql_mode=NO_ENGINE_SUBSTITUTION,STRICT_TRANS_TABLES
+
+    [mysqld_safe]
+    log-error=/var/log/mysqld.log
+    pid-file=/var/run/mysqld/mysqld.pid
+    ```
+
+- Create a playbook `/home/ansible_user/ansible_plays/setup_mysql.yml` that uses the role and runs on hosts in the `databases` host group.
+
+---
+
+## Task 11: Create and Work with Roles (Some More)
+
+- Create a role called `apache_role` and store it in `/home/ansible_user/ansible_plays/roles`. The role should satisfy the following requirements:
+  - The `httpd`, `mod_ssl`, and `php` packages are installed.
+  - The Apache service is running and enabled on boot.
+  - The firewall is configured to allow all incoming traffic on HTTP port TCP 80 and HTTPS port TCP 443.
+  - The Apache service should be restarted every time the file `/var/www/html/index.html` is modified.
+  - A Jinja2 template file `index.html.j2` is used to create the file `/var/www/html/index.html` with the following content:
+
+    ```
+    The server address is: {{ ansible_default_ipv4.address }}
+    ```
+
+- Create a playbook `/home/ansible_user/ansible_plays/setup_apache.yml` that uses the role and runs on hosts in the `webservers` host group.
+
+---
+
+## Task 12: Download Roles from Ansible Galaxy and Use Them
+
+- Use Ansible Galaxy to download and install the `geerlingguy.haproxy` role into `/home/ansible_user/ansible_plays/roles`.
+- Create a playbook `/home/ansible_user/ansible_plays/haproxy_setup.yml` that runs on servers in the `loadbalancers` host group and does the following:
+  - Use the `geerlingguy.haproxy` role to load balance requests between hosts in the `webservers` host group.
+ 
+
+ - The load balancer should listen on TCP port 80.
+
+---
+
+## Task 13: Generate `/etc/hosts` File Using a Template
+
+- Create a new directory named `templates` at `/home/ansible_user/ansible_plays/templates`.
+- In this directory, create a Jinja2 template file named `hosts.j2` that will be used to generate the `/etc/hosts` file on each managed node. The template should follow this structure:
+
+  ```
+  127.0.0.1 localhost {{ ansible_hostname }} {{ ansible_fqdn }}
+  127.0.1.1 localhost
+  [HOST IP] [HOSTNAME] [HOST FQDN]
+  ```
+
+- Create a playbook named `hosts.yml` located in `/home/ansible_user/ansible_plays` that does the following:
+  - Runs against all hosts.
+  - Uses the `hosts.j2` template to generate the `/etc/hosts` file on each managed node.
+  - After running the playbook, it should be possible to reach any node from any other node using the IP address, short name, or FQDN.
+
+---
+
+## Task 14: System Information Report
+
+- Create a playbook named `report.yml` in `/home/ansible_user/ansible_plays` that generates a system information report for each managed node. The report should be saved as `report.txt` and should contain the following information:
+
+  ```
+  HOST=<inventory_hostname>
+  MEMORY=<total_memory_in_mb>
+  BIOS=<bios_version>
+  VDA_DISK_SIZE=<disk_size_of_vda_or_NONE>
+  VDB_DISK_SIZE=<disk_size_of_vdb_or_NONE>
+  ```
+
+- After creating the report file, the playbook should copy it to `/root/report.txt` on each managed node.
+- Ensure that the `report.yml` playbook accurately populates the file with real data for each node.
+
+---
