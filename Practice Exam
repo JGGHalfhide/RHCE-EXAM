@@ -20,7 +20,17 @@ RHCE Sample Exam
 
 ---
 
-## Task 2: Create a Shell Script for YUM Repositories
+## Task 2: Ad-Hoc Commands
+
+- Create an SSH key pair. Write a script `/home/ansible_user/ansible_plays/run_adhoc` that uses Ansible ad-hoc commands to achieve the following:
+  - User `ansible_user` is created on all inventory hosts.
+  - The generated SSH key is copied to all inventory hosts for the `ansible_user` and stored in `/home/ansible_user/.ssh/authorized_keys`.
+  - The `ansible_user` is allowed to elevate privileges on all inventory hosts without providing a password.
+  - After running the ad-hoc script, you should be able to SSH into all inventory hosts using the `ansible_user` without a password, as well as run all privileged commands.
+
+---
+
+## Task 3: Create a Shell Script for YUM Repositories
 
 - Create a shell script named `packages.sh` in the directory `/home/ansible_user/ansible_plays`. The script should run an Ansible ad-hoc command to create YUM repository files on all managed hosts with the following specifications:
   - The AppStream repository should have:
@@ -35,16 +45,6 @@ RHCE Sample Exam
     - Enabled status with a GPG key located at `http://repo.ansi.example.com/RPM-GPG-KEY-redhat-release`
   
   The repositories should be configured using an Ansible ad-hoc command executed from within the script.
-
----
-
-## Task 3: Ad-Hoc Commands
-
-- Create an SSH key pair. Write a script `/home/ansible_user/ansible_plays/run_adhoc` that uses Ansible ad-hoc commands to achieve the following:
-  - User `ansible_user` is created on all inventory hosts.
-  - The generated SSH key is copied to all inventory hosts for the `ansible_user` and stored in `/home/ansible_user/.ssh/authorized_keys`.
-  - The `ansible_user` is allowed to elevate privileges on all inventory hosts without providing a password.
-  - After running the ad-hoc script, you should be able to SSH into all inventory hosts using the `ansible_user` without a password, as well as run all privileged commands.
 
 ---
 
