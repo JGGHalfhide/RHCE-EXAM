@@ -1,4 +1,3 @@
-```markdown
 # RHCE Sample Exam
 
 **NOTE:** This sample exam assumes a lab environment with a control node and 3 managed hosts (but you can use more if you’d like) and a user with sudo privileges that will run all of the tasks present on all nodes. In addition, the default user should be able to ssh into all managed nodes without password prompting (so generate (ssh-keygen) and share (ssh-copy-id) its key with the hosts). If any of this is absent, create/enable this BEFORE proceeding to the exam.
@@ -67,7 +66,7 @@
 
 - You have been provided with the list of users below. Use `/home/ansible_user/ansible_plays/vars/users.yml` file to save this content:
 
-  ```yaml
+  ```
   ---
   users:
     - username: john
@@ -81,7 +80,7 @@
       job: dbadmin
   ```
 
-- Create a playbook `/home/ansible_user/ansible_plays/create_users.yml` that uses the vault file `/home/ansible_user/ansible_plays/secrets.yml` to achieve the following:
+  - Create a playbook `/home/ansible_user/ansible_plays/create_users.yml` that uses the vault file `/home/ansible_user/ansible_plays/secrets.yml` to achieve the following:
   - Users with jobs in webadmin should be created on all of the `webservers` host group. The password should be retrieved from the `web_password` variable.
   - Users with jobs in dbadmin should be created on all of the `databases` host group. The password should be retrieved from the `db_password` variable.
   - All users should be members of a supplementary group `wheel`.
@@ -98,7 +97,7 @@
 
 ---
 
-## Task 8: Create and Work with Roles (Some More)
+## Task 8: Create and Work with Role
 
 - Create a role called `apache_role` and store it in `/home/ansible_user/ansible_plays/roles`. The role should satisfy the following requirements:
   - The `httpd` and `firewalld` packages are installed and enabled.
@@ -110,7 +109,9 @@
     This webserver: HOSTNAME is being accessed at: IPADDRESS
     ```
 
+- HOSTNAME and IPADDRESS should reflect the host being accessed. 
 - Create a playbook `/home/ansible_user/ansible_plays/setup_apache.yml` that uses the role and runs on hosts in the `webservers` host group.
+- Verify the successful role execution by navigating to the webserver's IP address. 
 
 ---
 
@@ -125,7 +126,7 @@
   [HOST IP] [HOSTNAME] [HOST FQDN]
   ```
 
-- Create a playbook named `generate_hosts.yml` located in `/home/ansible_user/ansible_plays` that does the following:
+  - Create a playbook named `generate_hosts.yml` located in `/home/ansible_user/ansible_plays` that does the following:
   - Runs against all hosts.
   - Uses the `hosts.j2` template to generate the `/etc/backup_hosts` file on each managed node.
   - After running the playbook, it should be possible to reach any node from any other node using the IP address, short name, or FQDN.
@@ -177,4 +178,3 @@
   - Give it an ext4 filesystem.
   - Mount it permanently on `/newpartition`.
   - If `/dev/vda` does not exist at all, print “No /dev/vda exists”.
-```
